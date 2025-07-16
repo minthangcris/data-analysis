@@ -1,110 +1,172 @@
 import streamlit as st
-  import pandas as pd
-  import matplotlib.pyplot as plt
-  import seaborn as sns
-  from datetime import datetime
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from datetime import datetime
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import numpy as np
 
-  # Thiết lập tiêu đề và cấu hình trang
-  st.title("ABC Manufacturing Data Analysis Dashboard")
-  st.markdown("Interactive dashboard for analyzing manufacturing data including sales, inventory, machine performance, and quality metrics.")
+# Cấu hình trang
+st.set_page_config(page_title="ABC Manufacturing Analytics", layout="wide")
+st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 
-  # Tải dữ liệu với xử lý lỗi
-  @st.cache_data
-  def load_data():
-      try:
-          df = pd.read_csv("abc_manufacturing_data.csv")
-          df['Date'] = pd.to_datetime(df['Date'])
-          if df.empty:
-              st.error("Data file is empty. Please check abc_manufacturing_data.csv.")
-          return df
-      except FileNotFoundError:
-          st.error("Error: abc_manufacturing_data.csv not found. Please upload the file to the repository.")
-          return pd.DataFrame()
-      except Exception as e:
-          st.error(f"Error loading data: {str(e)}")
-          return pd.DataFrame()
+# ========== LOAD DATA ==========
+@st.cache_data
+def load_data():
+    df = pd.read_csv("abc_manufacturing_data.csv")
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
+    return df
 
-  df = load_data()
+df_raw = load_data()
 
-  # Nếu dữ liệu rỗng, dừng ứng dụng
-  if df.empty:
-      st.stop()
+st.header("🔧 Data Preprocessing")
 
-  # Sidebar: Bộ lọc dữ liệu
-  st.sidebar.header("Filter Options")
-  product_filter = st.sidebar.multiselect("Select Product ID", options=df['Product_ID'].unique(), default=df['Product_ID'].unique())
-  date_range = st.sidebar.date_input("Select Date Range", [df['Date'].min(), df['Date'].max()])
-  date_range = [pd.to_datetime(d) for d in date_range]
+# 1. Show raw data
+st.subheader("Raw Data")
+st.dataframe(df_raw.head())
 
-  # Lọc dữ liệu theo bộ lọc
-  filtered_df = df[(df['Product_ID'].isin(product_filter)) & 
-                   (df['Date'] >= date_range[0]) & 
-                   (df['Date'] <= date_range[1])]
+# 2. Check & remove nulls
+st.subheader("Step 1: Handling Null Values")
+null_counts = df_raw.isnull().sum()
+st.write("Missing values per column:")
+st.write(null_counts)
 
-  # Hiển thị bảng dữ liệu
-  st.subheader("Filtered Data")
-  st.dataframe(filtered_df)
+if null_counts.sum() > 0:
+    df_clean = df_raw.dropna()
+    st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
+else:
+    st.info("No null values found.")
+    df_clean = df_raw.copy()
 
-  # Thiết lập phong cách biểu đồ
-  plt.style.use('seaborn')
-  sns.set_palette("husl")
+# 3. Remove duplicates
+st.subheader("Step 2: Removing Duplicates")
+before = len(df_clean)
+df_clean = df_clean.drop_duplicates()
+after = len(df_clean)
+st.success(f"Removed {before - after} duplicate records.")
 
-  # Biểu đồ 1: Xu hướng Sales_Quantity
-  st.subheader("Sales Quantity Trend by Product")
-  fig1, ax1 = plt.subplots(figsize=(8, 4))  # Giảm kích thước để tối ưu tài nguyên
-  for product in filtered_df['Product_ID'].unique():
-      product_data = filtered_df[filtered_df['Product_ID'] == product]
-      ax1.plot(product_data['Date'], product_data['Sales_Quantity'], marker='o', label=product)
-  ax1.set_title('Sales Quantity Trend by Product')
-  ax1.set_xlabel('Date')
-  ax1.set_ylabel('Sales Quantity')
-  ax1.legend()
-  ax1.tick_params(axis='x', rotation=45)
-  plt.tight_layout()
-  st.pyplot(fig1)
+# 4. Data normalization/standardization
+st.subheader("Step 3: Data Normalization (Standardization)")
 
-  # Biểu đồ 2: Xu hướng Inventory_Level
-  st.subheader("Inventory Level Trend by Product")
-  fig2, ax2 = plt.subplots(figsize=(8, 4))
-  for product in filtered_df['Product_ID'].unique():
-      product_data = filtered_df[filtered_df['Product_ID'] == product]
-      ax2.plot(product_data['Date'], product_data['Inventory_Level'], marker='o', label=product)
-  ax2.set_title('Inventory Level Trend by Product')
-  ax2.set_xlabel('Date')
-  ax2.set_ylabel('Inventory Level')
-  ax2.legend()
-  ax2.tick_params(axis='x', rotation=45)
-  plt.tight_layout()
-  st.pyplot(fig2)
+numeric_cols = ['Sales_Quantity', 'Inventory_Level', 'Machine_Uptime_Hours',
+                'Machine_Downtime_Hours', 'Quality_Issue_Count', 'Delivery_Time_Days']
 
-  # Biểu đồ 3: Phân bố Machine_Downtime_Hours
-  st.subheader("Machine Downtime Hours by Machine ID")
-  fig3, ax3 = plt.subplots(figsize=(8, 4))
-  sns.boxplot(x='Machine_ID', y='Machine_Downtime_Hours', data=filtered_df, ax=ax3)
-  ax3.set_title('Machine Downtime Hours by Machine ID')
-  ax3.set_xlabel('Machine ID')
-  ax3.set_ylabel('Downtime Hours')
-  plt.tight_layout()
-  st.pyplot(fig3)
+scaler = StandardScaler()
+df_clean[numeric_cols] = scaler.fit_transform(df_clean[numeric_cols])
 
-  # Biểu đồ 4: Tỷ lệ không đạt chất lượng
-  st.subheader("Quality Failure Rate by Product")
-  quality_fail = filtered_df[filtered_df['Quality_Check_Pass'] == False].groupby('Product_ID').size() / filtered_df.groupby('Product_ID').size()
-  quality_fail = quality_fail.reset_index(name='Failure_Rate')
-  fig4, ax4 = plt.subplots(figsize=(8, 4))
-  sns.barplot(x='Product_ID', y='Failure_Rate', data=quality_fail, ax=ax4)
-  ax4.set_title('Quality Failure Rate by Product')
-  ax4.set_xlabel('Product ID')
-  ax4.set_ylabel('Failure Rate')
-  plt.tight_layout()
-  st.pyplot(fig4)
+st.write("Standardized Numeric Columns:")
+st.dataframe(df_clean[numeric_cols].head())
 
-  # Biểu đồ 5: Sales_Quantity vs Quality_Issue_Count
-  st.subheader("Sales Quantity vs Quality Issue Count")
-  fig5, ax5 = plt.subplots(figsize=(8, 4))
-  sns.scatterplot(x='Sales_Quantity', y='Quality_Issue_Count', hue='Product_ID', size='Product_ID', data=filtered_df, ax=ax5)
-  ax5.set_title('Sales Quantity vs Quality Issue Count')
-  ax5.set_xlabel('Sales Quantity')
-  ax5.set_ylabel('Quality Issue Count')
-  plt.tight_layout()
-  st.pyplot(fig5)
+# Show data after preprocessing
+st.subheader("✅ Preprocessed Data Sample")
+st.dataframe(df_clean.head())
+
+# ================== SIDEBAR FILTER ==================
+st.sidebar.header("Filter Options")
+
+product_filter = st.sidebar.multiselect(
+    "Select Product ID",
+    options=df_clean['Product_ID'].unique(),
+    default=df_clean['Product_ID'].unique()
+)
+
+date_range = st.sidebar.date_input(
+    "Select Date Range",
+    value=[df_clean['Date'].min(), df_clean['Date'].max()]
+)
+
+if len(date_range) == 2:
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+
+    if start_date > end_date:
+        st.error("Start date cannot be after end date. Please adjust.")
+        st.stop()
+
+    filtered_df = df_clean[
+        (df_clean['Product_ID'].isin(product_filter)) &
+        (df_clean['Date'] >= start_date) &
+        (df_clean['Date'] <= end_date)
+    ]
+else:
+    st.warning("Please select a start and end date for filtering.")
+    filtered_df = df_clean.copy()
+
+# ================== VISUALIZATION ==================
+st.header("📈 Data Visualizations")
+
+plt.style.use('seaborn-v0_8')
+sns.set_palette("husl")
+
+# 1. Sales Quantity Trend
+st.subheader("1️⃣ Sales Quantity Trend by Product")
+fig1, ax1 = plt.subplots(figsize=(10,5))
+sns.lineplot(data=filtered_df, x='Date', y='Sales_Quantity', hue='Product_ID', marker='o', ax=ax1)
+ax1.set_title('Sales Quantity Trend by Product')
+ax1.tick_params(axis='x', rotation=45)
+st.pyplot(fig1)
+
+# 2. Inventory Level Trend
+st.subheader("2️⃣ Inventory Level Trend by Product")
+fig2, ax2 = plt.subplots(figsize=(10,5))
+sns.lineplot(data=filtered_df, x='Date', y='Inventory_Level', hue='Product_ID', marker='o', ax=ax2)
+ax2.set_title('Inventory Level Trend by Product')
+ax2.tick_params(axis='x', rotation=45)
+st.pyplot(fig2)
+
+# 3. Machine Downtime by Machine
+st.subheader("3️⃣ Machine Downtime Hours by Machine")
+fig3, ax3 = plt.subplots(figsize=(10,5))
+sns.boxplot(x='Machine_ID', y='Machine_Downtime_Hours', data=filtered_df, ax=ax3)
+ax3.set_title('Machine Downtime by Machine ID')
+st.pyplot(fig3)
+
+# 4. Quality Failure Rate
+st.subheader("4️⃣ Quality Failure Rate by Product")
+quality_fail = filtered_df[filtered_df['Quality_Check_Pass'] == False].groupby('Product_ID').size() / filtered_df.groupby('Product_ID').size()
+quality_fail = quality_fail.reset_index(name='Failure_Rate')
+fig4, ax4 = plt.subplots(figsize=(8, 5))
+sns.barplot(x='Product_ID', y='Failure_Rate', data=quality_fail, ax=ax4)
+ax4.set_title('Quality Failure Rate by Product')
+st.pyplot(fig4)
+
+# 5. Sales Quantity vs Quality Issues
+st.subheader("5️⃣ Sales Quantity vs Quality Issue Count")
+fig5, ax5 = plt.subplots(figsize=(8, 5))
+sns.scatterplot(x='Sales_Quantity', y='Quality_Issue_Count', hue='Product_ID', data=filtered_df, ax=ax5)
+ax5.set_title('Sales Quantity vs Quality Issue Count')
+st.pyplot(fig5)
+
+# ================== AI MODEL - Forecasting ==================
+st.header("🤖 AI Model: Sales Quantity Forecasting")
+
+selected_product = st.selectbox("Select Product for Forecasting", df_clean['Product_ID'].unique())
+
+model_data = df_clean[df_clean['Product_ID'] == selected_product]
+X = model_data[['Date_Ordinal']]
+y = model_data['Sales_Quantity']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+st.write(f"**Mô hình:** Linear Regression")
+st.write(f"**Sản phẩm đã chọn:** {selected_product}")
+st.write(f"**RMSE:** {rmse:.2f}")
+
+fig6, ax6 = plt.subplots(figsize=(10,5))
+ax6.scatter(X_test, y_test, color='blue', label='Actual')
+ax6.scatter(X_test, y_pred, color='red', label='Predicted')
+ax6.set_title(f'Actual vs Predicted Sales Quantity for {selected_product}')
+ax6.set_xlabel('Date (Ordinal)')
+ax6.set_ylabel('Sales Quantity')
+ax6.legend()
+st.pyplot(fig6)
+
+st.success("✅ Dashboard generated successfully!")
