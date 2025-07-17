@@ -10,7 +10,7 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 
 # Cấu hình trang
-st.set_page_config(page_title="ABC Manufacturing Analytics", layout="wide")
+st.set_page_config(page_title="https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv", layout="wide")
 st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 
 # ========== LOAD DATA ==========
