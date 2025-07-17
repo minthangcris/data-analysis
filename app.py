@@ -10,13 +10,13 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 
 # Cấu hình trang
-st.set_page_config(page_title="https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv", layout="wide")
+st.set_page_config(page_title="abc_manufacturing_data.csv", layout="wide")
 st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 
 # ========== LOAD DATA ==========
 @st.cache_data
 def load_data():
-    df = pd.read_csv("abc_manufacturing_data.csv")
+    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
     df['Date'] = pd.to_datetime(df['Date'])
     df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
     return df
