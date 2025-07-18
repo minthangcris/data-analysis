@@ -52,6 +52,13 @@ else:
 
 # 3. Remove duplicates
 st.subheader("Step 2: Removing Duplicates")
+st.code("""
+### Removing Duplicates
+before = len(df_clean)
+df_clean = df_clean.drop_duplicates()
+after = len(df_clean)
+st.success(f"Removed {before - after} duplicate records.")
+""", language="python")
 before = len(df_clean)
 df_clean = df_clean.drop_duplicates()
 after = len(df_clean)
