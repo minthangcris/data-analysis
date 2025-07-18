@@ -34,15 +34,15 @@ st.subheader("Step 1: Handling Null Values")
 null_counts = df_raw.isnull().sum()
 st.write("Missing values per column:")
 st.write(null_counts)
-st.write("""
-# clean null value
+st.code("""
+### clean null value
 if null_counts.sum() > 0:
     df_clean = df_raw.dropna()
     st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
 else:
     st.info("No null values found.")
     df_clean = df_raw.copy()
-""")
+""", language="python")
 if null_counts.sum() > 0:
     df_clean = df_raw.dropna()
     st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
