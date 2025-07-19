@@ -93,9 +93,22 @@ df_clean[numeric_cols] = scaler.fit_transform(df_clean[numeric_cols])
 st.write("Standardized Numeric Columns:")
 st.dataframe(df_clean[numeric_cols].head())
 
+st.code("""
+numeric_cols = ['Sales_Quantity', 'Inventory_Level', 'Machine_Uptime_Hours',
+                'Machine_Downtime_Hours', 'Quality_Issue_Count', 'Delivery_Time_Days']
+
+scaler = StandardScaler()
+df_clean[numeric_cols] = scaler.fit_transform(df_clean[numeric_cols])
+""", language="python")
+
 # Show data after preprocessing
 st.subheader("✅ Preprocessed Data Sample")
 st.dataframe(df_clean.head())
+
+st.code("""
+st.subheader("✅ Preprocessed Data Sample")
+st.dataframe(df_clean.head())
+""", language="python")
 
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
