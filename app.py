@@ -17,11 +17,10 @@ st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 @st.cache_data
 def load_data():
     df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
-    df['Date'] = pd.to_datetime(df['Date'])
-    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
-    return df
+    return df  # Trả về dữ liệu thô mà không xử lý
 
 df_raw = load_data()
+st.dataframe(df_raw)  # Hiển thị bảng dữ liệu
 
 st.header("🔧 Data Preprocessing")
 st.code("""
