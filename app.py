@@ -15,14 +15,6 @@ st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 
 # ========== LOAD DATA ==========
 @st.cache_data
-st.code("""
-### LOAD DATA 
-def load_data():
-    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
-    df['Date'] = pd.to_datetime(df['Date'])
-    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
-    return df
-""", language="python")
 def load_data():
     df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
     df['Date'] = pd.to_datetime(df['Date'])
