@@ -28,15 +28,6 @@ st.header("🔧 Data Preprocessing")
 # 1. Show raw data
 st.subheader("Raw Data")
 st.dataframe(df_raw.head())
-st.code("""
-### SHOW RAW DATA
-if null_counts.sum() > 0:
-    df_clean = df_raw.dropna()
-    st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
-else:
-    st.info("No null values found.")
-    df_clean = df_raw.copy()
-""", language="python")v
 
 # 2. Check & remove nulls
 st.subheader("Step 1: Handling Null Values")
