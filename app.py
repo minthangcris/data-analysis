@@ -17,19 +17,12 @@ st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 @st.cache_data
 def load_data():
     df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
-    return df  # Trả về dữ liệu thô mà không xử lý
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
+    return df
 
 df_raw = load_data()
-st.dataframe(df_raw)  # Hiển thị bảng dữ liệu
-st.code("""
-### @st.cache_data
-def load_data():
-    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
-    return df  # Trả về dữ liệu thô mà không xử lý
 
-df_raw = load_data()
-st.dataframe(df_raw)  # Hiển thị bảng dữ liệu
-""", language="python")
 st.header("🔧 Data Preprocessing")
 
 # 1. Show raw data
