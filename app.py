@@ -15,6 +15,14 @@ st.title("📊 ABC Manufacturing Data Analysis Dashboard")
 
 # ========== LOAD DATA ==========
 @st.cache_data
+st.code("""
+### LOAD DATA 
+def load_data():
+    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
+    return df
+""", language="python")
 def load_data():
     df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
     df['Date'] = pd.to_datetime(df['Date'])
@@ -28,6 +36,15 @@ st.header("🔧 Data Preprocessing")
 # 1. Show raw data
 st.subheader("Raw Data")
 st.dataframe(df_raw.head())
+st.code("""
+### SHOW RAW DATA
+if null_counts.sum() > 0:
+    df_clean = df_raw.dropna()
+    st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
+else:
+    st.info("No null values found.")
+    df_clean = df_raw.copy()
+""", language="python")v
 
 # 2. Check & remove nulls
 st.subheader("Step 1: Handling Null Values")
