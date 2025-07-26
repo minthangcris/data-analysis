@@ -236,6 +236,16 @@ y = model_data['Sales_Quantity']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+st.code("""
+selected_product = st.selectbox("Select Product for Forecasting", df_clean['Product_ID'].unique())
+
+model_data = df_clean[df_clean['Product_ID'] == selected_product]
+X = model_data[['Date_Ordinal']]
+y = model_data['Sales_Quantity']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+""", language="python")
+
 model = LinearRegression()
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
@@ -244,6 +254,17 @@ rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 st.write(f"**Mô hình:** Linear Regression")
 st.write(f"**Sản phẩm đã chọn:** {selected_product}")
 st.write(f"**RMSE:** {rmse:.2f}")
+
+st.code("""
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+st.write(f"**Mô hình:** Linear Regression")
+st.write(f"**Sản phẩm đã chọn:** {selected_product}")
+st.write(f"**RMSE:** {rmse:.2f}")
+""", language="python")
 
 fig6, ax6 = plt.subplots(figsize=(10,5))
 ax6.scatter(X_test, y_test, color='blue', label='Actual')
