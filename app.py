@@ -179,19 +179,6 @@ st.code("""
 
 """, language="python")
 
-# 4. Sales analysis by Product_ID
-st.subheader("4. Sales by Product")
-sales_by_product = df_clean.groupby('Product_ID')['Sales_Quantity'].sum().reset_index()
-fig_sales = px.bar(sales_by_product, x='Product_ID', y='Sales_Quantity',
-                   title="Total Sales by Product",
-                   color='Product_ID',
-                   color_discrete_sequence=px.colors.qualitative.Set2)
-st.plotly_chart(fig_sales)
-
-st.code("""
-
-""", language="python")
-
 # 5. Analysis of quality issue ratio
 st.subheader("5. Quality Issue Ratio by Product")
 df_clean['Quality_Issue_Ratio'] = df_clean['Quality_Issue_Count'] / df_clean['Sales_Quantity']
