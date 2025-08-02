@@ -140,6 +140,97 @@ else:
     st.warning("Please select a start and end date for filtering.")
     filtered_df = df_clean.copy()
 
+# ========== DATA ANALYSIS ==========
+st.header("📊 Data Analysis")
+
+# 1. Check for null values (already done in preprocessing, just displayed here for completeness)
+st.subheader("1. Check Null Values")
+st.write("Number of null values in each column:")
+st.write(df_clean.isnull().sum())
+if df_clean.isnull().sum().sum() == 0:
+    st.success("No null values in the dataset!")
+else:
+    st.warning("Null values detected. Please check in detail.")
+
+st.code("""
+
+""", language="python")
+
+# 2. Check for duplicate records (already handled in preprocessing, just displayed here)
+st.subheader("2. Check Duplicate Records")
+duplicates = df_clean.duplicated().sum()
+st.write("Number of duplicate records:", duplicates)
+if duplicates == 0:
+    st.success("No duplicate records found!")
+else:
+    st.warning("Duplicate records detected. Please check in detail.")
+    st.write("Duplicate records:")
+    st.dataframe(df_clean[df_clean.duplicated()])
+
+st.code("""
+
+""", language="python")
+
+# 3. Descriptive statistics
+st.subheader("3. Descriptive Statistics")
+st.write(df_clean.describe())
+
+st.code("""
+
+""", language="python")
+
+# 4. Sales analysis by Product_ID
+st.subheader("4. Sales by Product")
+sales_by_product = df_clean.groupby('Product_ID')['Sales_Quantity'].sum().reset_index()
+fig_sales = px.bar(sales_by_product, x='Product_ID', y='Sales_Quantity',
+                   title="Total Sales by Product",
+                   color='Product_ID',
+                   color_discrete_sequence=px.colors.qualitative.Set2)
+st.plotly_chart(fig_sales)
+
+st.code("""
+
+""", language="python")
+
+# 5. Analysis of quality issue ratio
+st.subheader("5. Quality Issue Ratio by Product")
+df_clean['Quality_Issue_Ratio'] = df_clean['Quality_Issue_Count'] / df_clean['Sales_Quantity']
+quality_by_product = df_clean.groupby('Product_ID')['Quality_Issue_Ratio'].mean().reset_index()
+fig_quality = px.bar(quality_by_product, x='Product_ID', y='Quality_Issue_Ratio',
+                     title="Average Quality Issue Ratio by Product",
+                     color='Product_ID',
+                     color_discrete_sequence=px.colors.qualitative.Set1)
+st.plotly_chart(fig_quality)
+
+st.code("""
+
+""", language="python")
+
+# 6. Sales trend analysis over time
+st.subheader("6. Sales Trend Over Time")
+sales_trend = df_clean.groupby('Date')['Sales_Quantity'].sum().reset_index()
+fig_trend = px.line(sales_trend, x='Date', y='Sales_Quantity',
+                    title="Total Sales Trend by Date",
+                    color_discrete_sequence=['#636EFA'])
+st.plotly_chart(fig_trend)
+
+st.code("""
+
+""", language="python")
+
+# 7. Delivery time analysis
+st.subheader("7. Delivery Time by Supplier")
+delivery_by_supplier = df_clean.groupby('Supplier_ID')['Delivery_Time_Days'].mean().reset_index()
+fig_delivery = px.bar(delivery_by_supplier, x='Supplier_ID', y='Delivery_Time_Days',
+                      title="Average Delivery Time by Supplier",
+                      color='Supplier_ID',
+                      color_discrete_sequence=px.colors.qualitative.Pastel)
+st.plotly_chart(fig_delivery)
+
+st.code("""
+
+""", language="python")
+
 # ================== VISUALIZATION ==================
 st.header("📈 Data Visualizations")
 
