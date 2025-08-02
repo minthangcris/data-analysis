@@ -139,6 +139,8 @@ if len(date_range) == 2:
 else:
     st.warning("Please select a start and end date for filtering.")
     filtered_df = df_clean.copy()
+
+# ================== VISUALIZATION ==================
 # --- PHÂN TÍCH DỮ LIỆU ---
     st.header("1️⃣ Tổng quan số lượng bán theo thời gian")
     sales_by_date = df.groupby("Date")["Sales_Quantity"].sum().reset_index()
@@ -181,7 +183,6 @@ else:
     ax5.set_xlabel("Downtime (hours)")
     ax5.set_ylabel("Quality Issue Count")
     st.pyplot(fig5)
-# ================== VISUALIZATION ==================
 st.header("📈 Data Visualizations")
 
 plt.style.use('seaborn-v0_8')
