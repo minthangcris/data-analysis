@@ -120,6 +120,14 @@ sns.histplot(df_clean['Sales_Quantity'], kde=True, ax=ax_a1, bins=20)
 ax_a1.set_title("Distribution of Sales Quantity")
 st.pyplot(fig_a1)
 
+st.code("""
+st.subheader("📊 Distribution of Sales Quantity")
+fig_a1, ax_a1 = plt.subplots(figsize=(8, 4))
+sns.histplot(df_clean['Sales_Quantity'], kde=True, ax=ax_a1, bins=20)
+ax_a1.set_title("Distribution of Sales Quantity")
+st.pyplot(fig_a1)
+""", language="python")
+
 # 2. Correlation Heatmap
 st.subheader("🔗 Correlation Between Numeric Variables")
 fig_a2, ax_a2 = plt.subplots(figsize=(10, 6))
@@ -127,6 +135,16 @@ corr = df_clean[numeric_cols].corr()
 sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_a2)
 ax_a2.set_title("Correlation Heatmap of Key Variables")
 st.pyplot(fig_a2)
+
+st.code("""
+st.subheader("🔗 Correlation Between Numeric Variables")
+fig_a2, ax_a2 = plt.subplots(figsize=(10, 6))
+corr = df_clean[numeric_cols].corr()
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f', ax=ax_a2)
+ax_a2.set_title("Correlation Heatmap of Key Variables")
+st.pyplot(fig_a2)
+
+""", language="python")
 
 # 3. Average Downtime vs Quality Issues
 st.subheader("🛠️ Average Downtime vs Quality Issue Count per Machine")
@@ -138,12 +156,31 @@ ax_a3.set_title("Avg. Downtime and Quality Issues per Machine")
 ax_a3.legend()
 st.pyplot(fig_a3)
 
+st.code("""
+st.subheader("🛠️ Average Downtime vs Quality Issue Count per Machine")
+downtime_quality = df_clean.groupby('Machine_ID')[['Machine_Downtime_Hours', 'Quality_Issue_Count']].mean().reset_index()
+fig_a3, ax_a3 = plt.subplots(figsize=(8, 5))
+sns.barplot(data=downtime_quality, x='Machine_ID', y='Quality_Issue_Count', color='orange', label='Quality Issues', ax=ax_a3)
+sns.lineplot(data=downtime_quality, x='Machine_ID', y='Machine_Downtime_Hours', color='blue', marker='o', label='Downtime (hrs)', ax=ax_a3)
+ax_a3.set_title("Avg. Downtime and Quality Issues per Machine")
+ax_a3.legend()
+st.pyplot(fig_a3)
+""", language="python")
+
 # 4. Inventory Level by Supplier
 st.subheader("🏷️ Inventory Level by Supplier")
 fig_a4, ax_a4 = plt.subplots(figsize=(10, 5))
 sns.boxplot(data=df_clean, x='Supplier_ID', y='Inventory_Level', ax=ax_a4)
 ax_a4.set_title("Inventory Level Distribution by Supplier")
 st.pyplot(fig_a4)
+
+st.code("""
+st.subheader("🏷️ Inventory Level by Supplier")
+fig_a4, ax_a4 = plt.subplots(figsize=(10, 5))
+sns.boxplot(data=df_clean, x='Supplier_ID', y='Inventory_Level', ax=ax_a4)
+ax_a4.set_title("Inventory Level Distribution by Supplier")
+st.pyplot(fig_a4)
+""", language="python")
 
 # 5. Quality Check Pass Rate
 st.subheader("✅ Quality Check Pass Rate")
@@ -154,6 +191,17 @@ sns.barplot(x='Product_ID', y='Pass_Rate (%)', data=quality_summary, ax=ax_a5)
 ax_a5.set_ylim(0, 110)
 ax_a5.set_title("Quality Check Pass Rate by Product")
 st.pyplot(fig_a5)
+
+st.code("""
+st.subheader("✅ Quality Check Pass Rate")
+quality_summary = df_clean.groupby('Product_ID')['Quality_Check_Pass'].mean().reset_index()
+quality_summary['Pass_Rate (%)'] = quality_summary['Quality_Check_Pass'] * 100
+fig_a5, ax_a5 = plt.subplots(figsize=(8, 5))
+sns.barplot(x='Product_ID', y='Pass_Rate (%)', data=quality_summary, ax=ax_a5)
+ax_a5.set_ylim(0, 110)
+ax_a5.set_title("Quality Check Pass Rate by Product")
+st.pyplot(fig_a5)
+""", language="python")
 
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
