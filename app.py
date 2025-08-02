@@ -110,17 +110,6 @@ st.subheader("✅ Preprocessed Data Sample")
 st.dataframe(df_clean.head())
 """, language="python")
 
-# ========== DATA ANALYSIS ==========
-st.header("📊 Data Analysis")
-
-# 1. Descriptive Statistics
-st.subheader("1. Descriptive Statistics")
-st.write(df_clean[numeric_cols].describe())
-st.code("""
-st.subheader("1. Descriptive Statistics")
-st.write(df_clean[numeric_cols].describe())
-""", language="python")
-
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
 
