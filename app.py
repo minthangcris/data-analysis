@@ -269,6 +269,7 @@ if len(date_range) == 2:
 else:
     st.warning("Please select a start and end date for filtering.")
     filtered_df = df_clean.copy()
+
 # ================== VISUALIZATION ==================
 st.header("📈 Data Visualizations")
 
