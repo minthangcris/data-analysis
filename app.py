@@ -116,6 +116,10 @@ st.header("📊 Data Analysis")
 # 1. Descriptive Statistics
 st.subheader("1. Descriptive Statistics")
 st.write(df_clean[numeric_cols].describe())
+st.code("""
+st.subheader("1. Descriptive Statistics")
+st.write(df_clean[numeric_cols].describe())
+""", language="python")
 
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
