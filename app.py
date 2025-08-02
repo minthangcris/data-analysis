@@ -1,3 +1,99 @@
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from datetime import datetime
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import numpy as np
+
+# Cấu hình trang
+st.set_page_config(page_title="abc_manufacturing_data.csv", layout="wide")
+st.title("📊 ABC Manufacturing Data Analysis Dashboard")
+
+# ========== LOAD DATA ==========
+@st.cache_data
+def load_data():
+    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
+    return df
+
+df_raw = load_data()
+
+st.header("🔧 Data Preprocessing")
+
+# 1. Show raw data
+st.subheader("Raw Data")
+st.dataframe(df_raw.head())
+
+st.code("""
+### @st.cache_data
+def load_data():
+    df = pd.read_csv("https://raw.githubusercontent.com/minthangcris/data-analysis/refs/heads/main/abc_manufacturing_data.csv")
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date_Ordinal'] = df['Date'].map(pd.Timestamp.toordinal)
+    return df
+
+df_raw = load_data()
+
+st.header("🔧 Data Preprocessing")
+
+# 1. Show raw data
+st.subheader("Raw Data")
+st.dataframe(df_raw.head())
+""", language="python")
+
+# 2. Check & remove nulls
+st.subheader("Step 1: Handling Null Values")
+null_counts = df_raw.isnull().sum()
+st.write("Missing values per column:")
+st.write(null_counts)
+st.code("""
+### clean null value
+if null_counts.sum() > 0:
+    df_clean = df_raw.dropna()
+    st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
+else:
+    st.info("No null values found.")
+    df_clean = df_raw.copy()
+""", language="python")
+if null_counts.sum() > 0:
+    df_clean = df_raw.dropna()
+    st.success(f"Removed {len(df_raw) - len(df_clean)} rows with null values.")
+else:
+    st.info("No null values found.")
+    df_clean = df_raw.copy()
+
+# 3. Remove duplicates
+st.subheader("Step 2: Removing Duplicates")
+st.code("""
+### Removing Duplicates
+before = len(df_clean)
+df_clean = df_clean.drop_duplicates()
+after = len(df_clean)
+st.success(f"Removed {before - after} duplicate records.")
+""", language="python")
+before = len(df_clean)
+df_clean = df_clean.drop_duplicates()
+after = len(df_clean)
+st.success(f"Removed {before - after} duplicate records.")
+
+# 4. Data normalization/standardization
+st.subheader("Step 3: Data Normalization (Standardization)")
+
+numeric_cols = ['Sales_Quantity', 'Inventory_Level', 'Machine_Uptime_Hours',
+                'Machine_Downtime_Hours', 'Quality_Issue_Count', 'Delivery_Time_Days']
+
+scaler = StandardScaler()
+df_clean[numeric_cols] = scaler.fit_transform(df_clean[numeric_cols])
+
+st.write("Standardized Numeric Columns:")
+st.dataframe(df_clean[numeric_cols].head())
+
+st.code("""
 numeric_cols = ['Sales_Quantity', 'Inventory_Level', 'Machine_Uptime_Hours',
                 'Machine_Downtime_Hours', 'Quality_Issue_Count', 'Delivery_Time_Days']
 
@@ -45,6 +141,11 @@ else:
     filtered_df = df_clean.copy()
 
 # ================== VISUALIZATION ==================
+st.header("📈 Data Visualizations")
+
+plt.style.use('seaborn-v0_8')
+sns.set_palette("husl")
+
 # 1. Sales Quantity Trend
 st.subheader("1️⃣ Sales Quantity Trend by Product")
 fig1, ax1 = plt.subplots(figsize=(10,5))
@@ -85,7 +186,8 @@ sns.boxplot(x='Machine_ID', y='Machine_Downtime_Hours', data=filtered_df, ax=ax3
 ax3.set_title('Machine Downtime by Machine ID')
 st.pyplot(fig3)
 
-st.code("""fig3, ax3 = plt.subplots(figsize=(10,5))
+st.code("""
+fig3, ax3 = plt.subplots(figsize=(10,5))
 sns.boxplot(x='Machine_ID', y='Machine_Downtime_Hours', data=filtered_df, ax=ax3)
 ax3.set_title('Machine Downtime by Machine ID')
 st.pyplot(fig3)
