@@ -8,6 +8,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 import numpy as np
+import plotly.express as px
 
 # Cấu hình trang
 st.set_page_config(page_title="abc_manufacturing_data.csv", layout="wide")
@@ -110,6 +111,20 @@ st.subheader("✅ Preprocessed Data Sample")
 st.dataframe(df_clean.head())
 """, language="python")
 
+# ========== DATA ANALYSIS ==========
+st.header("📊 Data Analysis")
+
+# 1. Descriptive Statistics
+st.subheader("1. Descriptive Statistics")
+st.write(df_clean[numeric_cols].describe())
+
+# 2. Average Machine Downtime by Product_ID
+st.subheader("2. Average Machine Downtime by Product")
+downtime_by_product = df_clean.groupby('Product_ID')['Machine_Downtime_Hours'].mean().reset_index()
+fig_downtime = px.bar(downtime_by_product, x='Product_ID', y='Machine_Downtime_Hours',
+                      title="Average Machine Downtime by Product",
+                      color='Product_ID', color_discrete_sequence=px.colors.qualitative.Pastel)
+st.plotly_chart(fig_downtime)
 
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
