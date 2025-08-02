@@ -117,13 +117,6 @@ st.header("📊 Data Analysis")
 st.subheader("1. Descriptive Statistics")
 st.write(df_clean[numeric_cols].describe())
 
-# 2. Average Machine Downtime by Product_ID
-st.subheader("2. Average Machine Downtime by Product")
-downtime_by_product = df_clean.groupby('Product_ID')['Machine_Downtime_Hours'].mean().reset_index()
-fig_downtime = px.bar(downtime_by_product, x='Product_ID', y='Machine_Downtime_Hours',
-                      title="Average Machine Downtime by Product",
-                      color='Product_ID', color_discrete_sequence=px.colors.qualitative.Pastel)
-st.dataframe(df_clean[numeric_cols].head())
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
 
