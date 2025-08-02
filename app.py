@@ -112,13 +112,11 @@ st.dataframe(df_clean.head())
 
 # ================== SIDEBAR FILTER ==================
 st.sidebar.header("Filter Options")
-
 product_filter = st.sidebar.multiselect(
     "Select Product ID",
     options=df_clean['Product_ID'].unique(),
     default=df_clean['Product_ID'].unique()
 )
-
 date_range = st.sidebar.date_input(
     "Select Date Range",
     value=[df_clean['Date'].min(), df_clean['Date'].max()]
@@ -126,11 +124,9 @@ date_range = st.sidebar.date_input(
 
 if len(date_range) == 2:
     start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
-
     if start_date > end_date:
         st.error("Start date cannot be after end date. Please adjust.")
         st.stop()
-
     filtered_df = df_clean[
         (df_clean['Product_ID'].isin(product_filter)) &
         (df_clean['Date'] >= start_date) &
@@ -140,6 +136,31 @@ else:
     st.warning("Please select a start and end date for filtering.")
     filtered_df = df_clean.copy()
 
+st.code("""
+st.sidebar.header("Filter Options")
+product_filter = st.sidebar.multiselect(
+    "Select Product ID",
+    options=df_clean['Product_ID'].unique(),
+    default=df_clean['Product_ID'].unique()
+)
+date_range = st.sidebar.date_input(
+    "Select Date Range",
+    value=[df_clean['Date'].min(), df_clean['Date'].max()]
+)
+if len(date_range) == 2:
+    start_date, end_date = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+    if start_date > end_date:
+        st.error("Start date cannot be after end date. Please adjust.")
+        st.stop()
+    filtered_df = df_clean[
+        (df_clean['Product_ID'].isin(product_filter)) &
+        (df_clean['Date'] >= start_date) &
+        (df_clean['Date'] <= end_date)
+    ]
+else:
+    st.warning("Please select a start and end date for filtering.")
+    filtered_df = df_clean.copy()
+""", language="python")
 # ================== VISUALIZATION ==================
 st.header("📈 Data Visualizations")
 
